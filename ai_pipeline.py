@@ -3,65 +3,159 @@ from PIL import Image
 import re
 import os
 
-# --- TESSERACT AUTO-PATH ---
-possible_paths = [
+POSSIBLE_PATHS = [
     r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-    r"D:\Tesseract-OCR\tesseract.exe",
-    r"C:\Users\User\AppData\Local\Tesseract-OCR\tesseract.exe"
+    r"D:\Tesseract-OCR\tesseract.exe"
 ]
-for path in possible_paths:
+
+for path in POSSIBLE_PATHS:
     if os.path.exists(path):
         pytesseract.pytesseract.tesseract_cmd = path
         break
 
-def extract_text(image_path):
-    try:
-        img = Image.open(image_path)
-        return pytesseract.image_to_string(img, config='--psm 6')
-    except: return ""
+# OCR funcrtion- read document and convert to string
+#cleaning the ocr noise
+def perform_ocr(image_path):
+    img = Image.open(image_path).convert("L")
+    text = pytesseract.image_to_string(img, config='--oem 3 --psm 6')
 
-def analyze_medical_report_local(path, age, gender):
-    text = extract_text(path)
-    clean_text = text.lower().replace('\n', ' ').replace(':', ' ')
-    
-    findings = []
-    clinical_notes = []
-    
-    # MASTER CBC PARAMETERS (Based on your Shree Diagnostic Report)
-    patterns = {
-        "Haemoglobin": (r"(?:haemoglobin|hb).{0,15}?(\d{1,2}\.\d)", 13.0, 17.0),
-        "WBC Count": (r"(?:w\.b\.c|wbc).{0,15}?(\d{4,6})", 4000, 10000),
-        "Platelets": (r"(?:platelet|plt).{0,15}?(\d{3,6})", 150000, 450000)
+    text = re.sub(r'[^a-zA-Z0-9./:%\s-]', ' ', text)
+    text = re.sub(r'\s+', ' ', text)
+
+    return text.strip()
+
+# understand and take lab values from thr document
+def extract_lab_values(text):
+    PARAMETERS = {
+        "Hemoglobin": ["hemoglobin", "hb"],
+        "WBC": ["wbc"],
+        "RBC": ["rbc"],
+        "Platelets": ["platelet"],
+        "Sodium": ["sodium", "na"],
+        "Potassium": ["potassium", "k"],
+        "Urea": ["urea"],
+        "Creatinine": ["creatinine"],
+        "Glucose": ["glucose", "sugar"]
     }
 
-    for key, (pattern, low, high) in patterns.items():
-        match = re.search(pattern, clean_text)
-        if match:
-            val = float(match.group(1))
-            status = "Normal"
-            if val < low: 
-                status = "LOW"
-                if key == "Haemoglobin": clinical_notes.append("Anemic tendency detected.")
-            elif val > high: 
-                status = "HIGH"
-                if key == "WBC Count": clinical_notes.append("Signs of active infection/inflammation.")
-            findings.append(f"{key}: {val} ({status})")
+    values = {}
+    words = text.lower().split()
 
-    # Final Synopsis Formulation
-    if findings:
-        synopsis = f"Automated CBC Triage for {age}Y/{gender}."
-        # If clinical notes exist, show them; otherwise show raw findings
-        diagnosis = " | ".join(clinical_notes) if clinical_notes else "Preliminary findings: " + " | ".join(findings)
-        risk = "High" if clinical_notes else "Low"
+    for i, word in enumerate(words):
+        for test, keywords in PARAMETERS.items():
+            if word in keywords:
+                for j in range(i + 1, min(i + 6, len(words))):
+                    if re.match(r'^\d+(\.\d+)?$', words[j]):
+                        values[test] = float(words[j])
+                        break
+
+    return values
+
+
+
+# standard med report normal ranges
+NORMAL_RANGES = {
+    "Hemoglobin": (13.0, 17.0),
+    "WBC": (4000, 11000),
+    "RBC": (4.5, 5.9),
+    "Platelets": (150000, 450000),
+    "Sodium": (135, 145),
+    "Potassium": (3.5, 5.1),
+    "Urea": (15, 40),
+    "Creatinine": (0.6, 1.3),
+    "Glucose": (70, 140)
+}
+
+# REPORT TYPE DETECTION
+def detect_report_type(text):
+    t = text.lower()
+
+    if "hemoglobin" in t or "wbc" in t:
+        return "Complete Blood Count (CBC)"
+    elif "creatinine" in t or "urea" in t:
+        return "Renal Function Test"
+    elif "bilirubin" in t:
+        return "Liver Function Test"
     else:
-        synopsis = "Document scanned. Complex handwriting/format detected."
-        diagnosis = "Manual review required. OCR Sample: " + text[:50].replace('\n', ' ')
-        risk = "Medium"
+        return "General Laboratory Report"
 
-    return {
-        "synopsis": synopsis,
-        "diagnosis": diagnosis,
-        "estimated_cost": 1200 + (len(clinical_notes) * 500),
-        "risk_level": risk,
-        "biometrics": {}
-    }
+# interpretation of report 
+def interpret_lab_results(values):
+    findings = []
+    explanations = []
+
+    for test, value in values.items():
+        if test not in NORMAL_RANGES:
+            continue
+
+        low, high = NORMAL_RANGES[test]
+
+        if value < low:
+            findings.append(f"{test}: {value} (Low)")
+            explanations.append(f"{test} is below normal range suggesting deficiency or chronic condition.")
+
+        elif value > high:
+            findings.append(f"{test}: {value} (High)")
+            explanations.append(f"{test} is elevated suggesting infection, inflammation, or metabolic imbalance.")
+
+        else:
+            findings.append(f"{test}: {value} (Normal)")
+
+    return findings, explanations
+
+# MAIN FUNCTION
+def analyze_medical_report_local(path, age, gender):
+    try:
+        raw_text = perform_ocr(path)
+
+        lab_values = extract_lab_values(raw_text)
+        findings, explanations = interpret_lab_results(lab_values)
+
+        report_type = detect_report_type(raw_text)
+
+        abnormal_count = len(explanations)
+
+        if abnormal_count >= 4:
+            risk_level = "High Clinical Attention Needed"
+            cost = 3000 + abnormal_count * 250
+        elif abnormal_count >= 2:
+            risk_level = "Moderate Monitoring Advised"
+            cost = 1500 + abnormal_count * 200
+        elif abnormal_count == 1:
+            risk_level = "Mild Variation"
+            cost = 800
+        else:
+            risk_level = "Normal"
+            cost = 500
+
+        severity_score = min(abnormal_count * 25, 100)
+
+        if explanations:
+            synopsis = "The report indicates: " + " ".join(explanations)
+        else:
+            synopsis = "All measured laboratory parameters are within normal limits."
+
+        diagnosis_html = (
+            "<b>Detected Clinical Parameters:</b><br>" +
+            "<br>".join([f"• {f}" for f in findings])
+        ) if findings else "No measurable values detected."
+
+        reference_ranges = {
+            test: f"{NORMAL_RANGES[test][0]} - {NORMAL_RANGES[test][1]}"
+            for test in lab_values if test in NORMAL_RANGES
+        }
+
+        return {
+            "synopsis": synopsis,
+            "diagnosis": diagnosis_html,
+            "risk_level": risk_level,
+            "estimated_cost": cost,
+            "chart_labels": list(lab_values.keys()),
+            "chart_values": list(lab_values.values()),
+            "reference_ranges": reference_ranges,
+            "severity_score": severity_score,
+            "report_type": report_type
+        }
+
+    except Exception as e:
+        return {"synopsis": "System Error", "diagnosis": str(e)}
