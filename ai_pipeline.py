@@ -1,4 +1,5 @@
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'D:\TESSERACT-OCR\tesseract.exe'
 from PIL import Image
 import re
 import os
@@ -15,29 +16,26 @@ biobert = pipeline(
     tokenizer="dmis-lab/biobert-base-cased-v1.1"
 )
 
-print("NLP Models Loaded.")
-POSSIBLE_PATHS = [
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-    r"D:\Tesseract-OCR\tesseract.exe"
-]
+print("Models Loaded")
 
-for path in POSSIBLE_PATHS:
-    if os.path.exists(path):
-        pytesseract.pytesseract.tesseract_cmd = path
-        break
+# ---------------- OCR ----------------
 
-# OCR module- image preprocess and conversion of img to string using tesseract
 def perform_ocr(image_path):
     img = Image.open(image_path).convert("L")
-    text = pytesseract.image_to_string(img, config='--oem 3 --psm 6')
 
-    text = re.sub(r'[^a-zA-Z0-9./:%\s-]', ' ', text)
+    text = pytesseract.image_to_string(img)
+
     text = re.sub(r'\s+', ' ', text)
 
-    return text.strip()
+    print("OCR raw text:", repr(text))
 
-# NLP processing. to identify medical terms 
+    return text
+
+
+# ---------------- MEDICAL CONTEXT ----------------
+
 def extract_medical_context(text):
+
     doc = nlp(text)
 
     medical_terms = []
@@ -47,38 +45,53 @@ def extract_medical_context(text):
         medical_terms.append(ent.text)
 
     for token in doc:
-        if token.text.lower() in ["fatigue", "fever", "pain", "weakness", "infection"]:
+        if token.text.lower() in ["fever", "fatigue", "pain", "infection", "weakness"]:
             symptoms.append(token.text)
 
     return list(set(medical_terms)), list(set(symptoms))
 
-#general parameters to be considered
+
+# ---------------- PARAMETERS ----------------
+
 PARAMETERS = {
-    "Hemoglobin": ["hemoglobin", "hb"],
-    "WBC": ["wbc"],
-    "RBC": ["rbc"],
-    "Platelets": ["platelet"],
-    "Sodium": ["sodium", "na"],
-    "Potassium": ["potassium", "k"],
-    "Urea": ["urea"],
-    "Creatinine": ["creatinine"],
-    "Glucose": ["glucose", "sugar"]
+    "Hemoglobin": ["hemoglobin", "hb", "hgb", "haemoglobin"],
+    "WBC": ["wbc", "white blood cells", "leucocytes", "total w.b.c. count"],
+    "RBC": ["rbc", "red blood cells", "erythrocytes", "total r.b.c. count"],
+    "Platelets": ["platelets", "platelet", "plt", "platelet count"],
+    "Sodium": ["sodium", "na", "natrium"],
+    "Potassium": ["potassium", "k", "kalium"],
+    "Urea": ["urea", "bun", "blood urea nitrogen"],
+    "Creatinine": ["creatinine", "crea"],
+    "Glucose": ["glucose", "sugar", "glu"]
 }
 
-def extract_lab_values(text):
-    values = {}
-    words = text.lower().split()
 
-    for i, word in enumerate(words):
-        for test, keywords in PARAMETERS.items():
-            if word in keywords:
-                for j in range(i + 1, min(i + 6, len(words))):
-                    if re.match(r'^\d+(\.\d+)?$', words[j]):
-                        values[test] = float(words[j])
-                        break
+# ---------------- LAB VALUE EXTRACTION ----------------
+# THIS IS THE MAIN FIX
+
+def extract_lab_values(text):
+
+    values = {}
+
+    for test, keywords in PARAMETERS.items():
+
+        for keyword in keywords:
+
+            pattern = rf"{keyword}\s*[:\-]?\s*(\d+\.?\d*)"
+
+            match = re.search(pattern, text, re.IGNORECASE)
+
+            if match:
+                values[test] = float(match.group(1))
+                break
+
+    print("Detected values:", values)
+
     return values
 
-# standard normal range values of the medicl terms
+
+# ---------------- NORMAL RANGES ----------------
+
 NORMAL_RANGES = {
     "Hemoglobin": (13.0, 17.0),
     "WBC": (4000, 11000),
@@ -91,70 +104,104 @@ NORMAL_RANGES = {
     "Glucose": (70, 140)
 }
 
-# INTERPRET RESULTS
+
+# ---------------- INTERPRET RESULTS ----------------
+
 def interpret_lab_results(values):
+
     findings = []
     explanations = []
     abnormal_count = 0
 
     for test, value in values.items():
+
         if test not in NORMAL_RANGES:
             continue
 
         low, high = NORMAL_RANGES[test]
 
         if value < low:
+
             abnormal_count += 1
-            findings.append(f"{test}: {value} (Low)")
-            explanations.append(f"Low {test} may indicate deficiency or dysfunction.")
+
+            findings.append(
+                f"{test}: {value} (Low) | Normal Range: {low}-{high}"
+            )
+
+            explanations.append(
+                f"{test} level is below the normal range which may indicate deficiency or physiological imbalance."
+            )
 
         elif value > high:
+
             abnormal_count += 1
-            findings.append(f"{test}: {value} (High)")
-            explanations.append(f"Elevated {test} suggests inflammation or imbalance.")
+
+            findings.append(
+                f"{test}: {value} (High) | Normal Range: {low}-{high}"
+            )
+
+            explanations.append(
+                f"{test} level is elevated compared to the expected physiological range which may indicate metabolic or inflammatory conditions."
+            )
 
         else:
-            findings.append(f"{test}: {value} (Normal)")
+
+            findings.append(
+                f"{test}: {value} (Normal) | Normal Range: {low}-{high}"
+            )
 
     return findings, explanations, abnormal_count
 
-# BioBERT summary- clinical terms 
+
+# ---------------- CLINICAL SUMMARY ----------------
+
 def generate_clinical_summary(explanations, symptoms):
 
     if not explanations:
-        return "Laboratory values are largely within physiological limits with no major abnormalities detected."
 
-    base = " ".join(explanations)
-
-    if symptoms:
-        base += " Patient symptoms include " + ", ".join(symptoms)
-
-    _ = biobert(base)
+        return (
+            "The laboratory investigation does not demonstrate significant abnormalities. "
+            "All detected parameters fall within expected physiological reference ranges. "
+            "Routine monitoring and clinical correlation are recommended."
+        )
 
     summary = (
-        "The laboratory profile demonstrates measurable physiological variation. "
-        + " ".join(explanations) +
-        " These findings should be clinically correlated to understand underlying cause."
+        "Detailed clinical interpretation of the laboratory parameters suggests the following observations: "
+        + " ".join(explanations)
     )
+
+    if symptoms:
+        summary += " Reported patient symptoms include " + ", ".join(symptoms) + "."
+
+    _ = biobert(summary)
 
     return summary
 
-# Report type detection based on parameters in the document
+
+# ---------------- REPORT TYPE ----------------
+
 def detect_report_type(text):
-    t = text.lower()
-    if "hemoglobin" in t or "wbc" in t:
+
+    text = text.lower()
+
+    if "hemoglobin" in text or "wbc" in text:
         return "Complete Blood Count (CBC)"
-    elif "creatinine" in t:
+
+    if "creatinine" in text:
         return "Renal Function Test"
-    else:
-        return "General Laboratory Report"
-    
-#severity calculation on the basis of the abnormal values 
+
+    return "General Lab Report"
+
+
+# ---------------- SEVERITY ----------------
+
 def calculate_severity(values):
+
     severity = 0
-    contributing_tests = 0
+    contributing = 0
 
     for test, value in values.items():
+
         if test not in NORMAL_RANGES:
             continue
 
@@ -163,28 +210,26 @@ def calculate_severity(values):
         if low <= value <= high:
             continue
 
-        contributing_tests += 1
+        contributing += 1
 
         if value < low:
             deviation = (low - value) / low
         else:
             deviation = (value - high) / high
 
-        deviation = min(deviation, 1.5)
-
         severity += deviation * 20
 
-    severity += contributing_tests * 5
+    severity += contributing * 5
 
-    severity_score = min(int(severity), 100)
+    return min(int(severity), 100)
 
-    print("Computed Severity Score:", severity_score)
 
-    return severity_score
+# ---------------- MAIN PIPELINE ----------------
 
-# MAIN PIPELINE
 def analyze_medical_report_local(path, age, gender):
+
     try:
+
         raw_text = perform_ocr(path)
 
         medical_terms, symptoms = extract_medical_context(raw_text)
@@ -199,51 +244,50 @@ def analyze_medical_report_local(path, age, gender):
 
         severity_score = calculate_severity(lab_values)
 
-        # Risk mapping from severity (0-100 scale min price for low severity max price for max severity)
         if severity_score >= 75:
             risk_level = "High Clinical Attention Needed"
             cost = 3000
+
         elif severity_score >= 40:
-            risk_level = "Moderate Monitoring Advised"
+            risk_level = "Moderate Monitoring Required"
             cost = 1800
+
         elif severity_score > 0:
             risk_level = "Mild Variation"
             cost = 900
+
         else:
             risk_level = "Normal"
             cost = 500
 
-        reference_ranges = {
-            test: f"{NORMAL_RANGES[test][0]} - {NORMAL_RANGES[test][1]}"
-            for test in lab_values if test in NORMAL_RANGES
-        }
-
         diagnosis_html = (
-            "<b>Detected Lab Findings:</b><br>" +
-            "<br>".join([f"• {f}" for f in findings])
-        ) if findings else "No measurable values detected."
+            "<br>".join(findings)
+            if findings else
+            "No measurable values detected."
+        )
 
         return {
             "synopsis": synopsis,
             "diagnosis": diagnosis_html,
+            "findings": findings,
             "risk_level": risk_level,
             "estimated_cost": cost,
             "severity_score": severity_score,
             "chart_labels": list(lab_values.keys()),
             "chart_values": list(lab_values.values()),
-            "reference_ranges": reference_ranges,
             "report_type": report_type
         }
 
     except Exception as e:
+
         return {
-            "synopsis": "System Error",
+            "synopsis": "System error during analysis.",
             "diagnosis": str(e),
-            "risk_level": "N/A",
+            "findings": [],
+            "risk_level": "Unknown",
             "estimated_cost": 0,
             "severity_score": 0,
             "chart_labels": [],
             "chart_values": [],
-            "reference_ranges": {},
             "report_type": "Unknown"
         }
