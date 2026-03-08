@@ -1,0 +1,345 @@
+{"label":"PROCEDURE","pattern":[{"LOWER":"renal dialysis (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"intramuscular injection"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"combined chemotherapy and radiation therapy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"diagnostic fiberoptic bronchoscopy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"digital examination of rectum"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"magnetic resonance imaging for measurement of brain volume (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"colonoscopy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"electrical cardioversion"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment of health and social care needs (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment using morse fall scale (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"screening for domestic abuse (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"depression screening (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"depression screening using patient health questionnaire two-item score (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"screening for chromosomal aneuploidy in prenatal amniotic fluid"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"evaluation of uterine fundal height"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"auscultation of the fetal heart"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"depression screening"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"physical examination"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"medication reconciliation (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment of anxiety (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment of substance use (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"screening for drug abuse (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"measurement of respiratory function (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hearing examination (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"high resolution computed tomography of chest without contrast (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hospice care (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"mammography (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"bone density scan (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"alpha-fetoprotein test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"fetal anatomy study"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"spirometry (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"pulmonary rehabilitation (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"electrocardiographic procedure"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment using new york heart association classification (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"assessment using alcohol use disorders identification test - consumption (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"echocardiography (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"placing subject in prone position (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"oxygen administration by mask (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"plain chest x-ray (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"biopsy of prostate"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"depression screening using patient health questionnaire nine item score (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"patient discharge (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"bone immobilization"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"upper arm x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"ankle x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"cardiovascular stress testing (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"catheter ablation of tissue of heart"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"vaccination for diphtheria  pertussis  and tetanus"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"urine screening for glucose"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hemoglobin / hematocrit / platelet count"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"sputum examination (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"heart failure education (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"rectal polypectomy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"peripheral blood smear interpretation"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"review of systems (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"brief general examination (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"streptococcus pneumoniae group b antigen test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"partial resection of colon"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"suture open wound"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"screening for occult blood in feces (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"episiotomy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"childbirth"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"chest x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"physical examination following birth"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"throat culture (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"manual pelvic examination (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"cytopathology procedure  preparation of smear  genital source (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"bilateral tubal ligation"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"clavicle x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"admission to orthopedic department"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"urine screening test for diabetes"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"chlamydia antigen test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"syphilis infection test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"standard pregnancy test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"rubella screening"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"ultrasound scan for fetal viability"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"urine protein test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"gonorrhea infection test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"urine culture"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hepatitis c antibody test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"measurement of varicella-zoster virus antibody"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"cytopathology procedure  preparation of smear  genital source"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hepatitis b surface antigen measurement"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"blood typing  rh typing"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"human immunodeficiency virus antigen test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"skin test for tuberculosis"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"physical examination of mother"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"epidural anesthesia"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"cesarean section"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"knee x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"subcutaneous immunotherapy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"surgical manipulation of joint of knee"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"insertion of intrauterine contraceptive device"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"induced termination of pregnancy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"counseling for termination of pregnancy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"replacement of contraceptive intrauterine device"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"pregnancy termination care"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"physical exam following abortion"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"prostatectomy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"monitoring of patient (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"augmentation of labor"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"removal of subcutaneous contraceptive"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"information gathering (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"insertion of subcutaneous contraceptive"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"medical induction of labor"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"injection of tetanus antitoxin"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"rhd passive immunization"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"admission to trauma surgery department"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"spontaneous breech delivery"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"referral to home health care service (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"x-ray or wrist"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"pelvis x-ray"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"instrumental delivery"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"insertion of biventricular implantable cardioverter defibrillator"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"computed tomography of chest and abdomen"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"sputum microscopy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"removal of intrauterine device"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"resuscitation using intravenous fluid (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"transfer to stepdown unit (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"mammogram - symptomatic (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"magnetic resonance imaging of breast (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"biopsy of breast (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"excision of breast tissue (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"teleradiotherapy procedure (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"premature birth of newborn"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"fine needle aspiration biopsy of lung (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"vasectomy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"biopsy of colon"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"extraction of wisdom tooth"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"movement therapy (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"cognitive and behavioral therapy (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"ultrasonography of abdomen  right upper quadrant and epigastrium"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"intubation"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"laparoscopic removal of gall bladder"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"psychosocial care (regime/therapy)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"ultrasonography of bilateral breasts (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"chemotherapy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"intravenous blood transfusion of packed cells (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"sentinel lymph node biopsy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"excision of sentinel lymph node (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"thoracentesis (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"percutaneous coronary intervention"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"coronary artery bypass grafting"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"antenatal rhd antibody screening"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"allergy screening test"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"appendectomy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"screening mammography (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"lumpectomy of breast (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"nasal sinus endoscopy (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"admission to burn unit"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"admission to long stay hospital"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"mental health screening (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"suicide risk assessment (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"face mask (physical object)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"admit to icu (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"insertion of endotracheal tube (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"controlled ventilation procedure and therapy  initiation and management (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"hemodialysis (procedure)"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"methotrexate injection into tubal pregnancy"}]}
+{"label":"PROCEDURE","pattern":[{"LOWER":"microbial culture (procedure)"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"paracetamol"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"amoxicillin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"metformin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"atorvastatin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"ibuprofen"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"azithromycin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"ciprofloxacin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"pantoprazole"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"dolo"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"insulin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"aspirin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"ranitidine"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"cetirizine"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"augmentin"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"thyroxine"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"caffeine"}]}
+{"label":"MEDICINE","pattern":[{"LOWER":"sugar"}]}
+{"label":"DOSAGE","pattern":[{"IS_DIGIT":true},{"LOWER":{"IN":["mg","ml","g","mcg"]}}]}
+{"label":"FREQUENCY","pattern":[{"LOWER":{"IN":["daily","bid","tid","od","hs","sos"]}}]}
+{"label":"PROCEDURE","pattern":"Renal dialysis (procedure)"}
+{"label":"PROCEDURE","pattern":"Intramuscular injection"}
+{"label":"PROCEDURE","pattern":"Combined chemotherapy and radiation therapy (procedure)"}
+{"label":"PROCEDURE","pattern":"Diagnostic fiberoptic bronchoscopy (procedure)"}
+{"label":"PROCEDURE","pattern":"Digital examination of rectum"}
+{"label":"PROCEDURE","pattern":"Magnetic resonance imaging for measurement of brain volume (procedure)"}
+{"label":"PROCEDURE","pattern":"Colonoscopy"}
+{"label":"PROCEDURE","pattern":"Electrical cardioversion"}
+{"label":"PROCEDURE","pattern":"Assessment of health and social care needs (procedure)"}
+{"label":"PROCEDURE","pattern":"Assessment using Morse Fall Scale (procedure)"}
+{"label":"PROCEDURE","pattern":"Screening for domestic abuse (procedure)"}
+{"label":"PROCEDURE","pattern":"Depression screening (procedure)"}
+{"label":"PROCEDURE","pattern":"Depression screening using Patient Health Questionnaire Two-Item score (procedure)"}
+{"label":"PROCEDURE","pattern":"Screening for chromosomal aneuploidy in prenatal amniotic fluid"}
+{"label":"PROCEDURE","pattern":"Evaluation of uterine fundal height"}
+{"label":"PROCEDURE","pattern":"Auscultation of the fetal heart"}
+{"label":"PROCEDURE","pattern":"Depression screening"}
+{"label":"PROCEDURE","pattern":"Physical examination"}
+{"label":"PROCEDURE","pattern":"Medication Reconciliation (procedure)"}
+{"label":"PROCEDURE","pattern":"Assessment of anxiety (procedure)"}
+{"label":"PROCEDURE","pattern":"Assessment of substance use (procedure)"}
+{"label":"PROCEDURE","pattern":"Screening for drug abuse (procedure)"}
+{"label":"PROCEDURE","pattern":"Measurement of respiratory function (procedure)"}
+{"label":"PROCEDURE","pattern":"Hearing examination (procedure)"}
+{"label":"PROCEDURE","pattern":"High resolution computed tomography of chest without contrast (procedure)"}
+{"label":"PROCEDURE","pattern":"Hospice care (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Mammography (procedure)"}
+{"label":"PROCEDURE","pattern":"Bone density scan (procedure)"}
+{"label":"PROCEDURE","pattern":"Alpha-fetoprotein test"}
+{"label":"PROCEDURE","pattern":"Fetal anatomy study"}
+{"label":"PROCEDURE","pattern":"Spirometry (procedure)"}
+{"label":"PROCEDURE","pattern":"Pulmonary rehabilitation (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Electrocardiographic procedure"}
+{"label":"PROCEDURE","pattern":"Assessment using New York Heart Association Classification (procedure)"}
+{"label":"PROCEDURE","pattern":"Assessment using Alcohol Use Disorders Identification Test - Consumption (procedure)"}
+{"label":"PROCEDURE","pattern":"Echocardiography (procedure)"}
+{"label":"PROCEDURE","pattern":"Placing subject in prone position (procedure)"}
+{"label":"PROCEDURE","pattern":"Oxygen administration by mask (procedure)"}
+{"label":"PROCEDURE","pattern":"Plain chest X-ray (procedure)"}
+{"label":"PROCEDURE","pattern":"Biopsy of prostate"}
+{"label":"PROCEDURE","pattern":"Depression screening using Patient Health Questionnaire Nine Item score (procedure)"}
+{"label":"PROCEDURE","pattern":"Patient discharge (procedure)"}
+{"label":"PROCEDURE","pattern":"Bone immobilization"}
+{"label":"PROCEDURE","pattern":"Upper arm X-ray"}
+{"label":"PROCEDURE","pattern":"Ankle X-ray"}
+{"label":"PROCEDURE","pattern":"Cardiovascular stress testing (procedure)"}
+{"label":"PROCEDURE","pattern":"Catheter ablation of tissue of heart"}
+{"label":"PROCEDURE","pattern":"Vaccination for diphtheria  pertussis  and tetanus"}
+{"label":"PROCEDURE","pattern":"Urine screening for glucose"}
+{"label":"PROCEDURE","pattern":"Hemoglobin / Hematocrit / Platelet count"}
+{"label":"PROCEDURE","pattern":"Sputum examination (procedure)"}
+{"label":"PROCEDURE","pattern":"Heart failure education (procedure)"}
+{"label":"PROCEDURE","pattern":"Rectal polypectomy"}
+{"label":"PROCEDURE","pattern":"Peripheral blood smear interpretation"}
+{"label":"PROCEDURE","pattern":"Review of systems (procedure)"}
+{"label":"PROCEDURE","pattern":"Brief general examination (procedure)"}
+{"label":"PROCEDURE","pattern":"Streptococcus pneumoniae group B antigen test"}
+{"label":"PROCEDURE","pattern":"Partial resection of colon"}
+{"label":"PROCEDURE","pattern":"Suture open wound"}
+{"label":"PROCEDURE","pattern":"Screening for occult blood in feces (procedure)"}
+{"label":"PROCEDURE","pattern":"Episiotomy"}
+{"label":"PROCEDURE","pattern":"Childbirth"}
+{"label":"PROCEDURE","pattern":"Chest X-ray"}
+{"label":"PROCEDURE","pattern":"Physical examination following birth"}
+{"label":"PROCEDURE","pattern":"Throat culture (procedure)"}
+{"label":"PROCEDURE","pattern":"Manual pelvic examination (procedure)"}
+{"label":"PROCEDURE","pattern":"Cytopathology procedure  preparation of smear  genital source (procedure)"}
+{"label":"PROCEDURE","pattern":"Bilateral tubal ligation"}
+{"label":"PROCEDURE","pattern":"Clavicle X-ray"}
+{"label":"PROCEDURE","pattern":"Admission to orthopedic department"}
+{"label":"PROCEDURE","pattern":"Urine screening test for diabetes"}
+{"label":"PROCEDURE","pattern":"Chlamydia antigen test"}
+{"label":"PROCEDURE","pattern":"Syphilis infection test"}
+{"label":"PROCEDURE","pattern":"Standard pregnancy test"}
+{"label":"PROCEDURE","pattern":"Rubella screening"}
+{"label":"PROCEDURE","pattern":"Ultrasound scan for fetal viability"}
+{"label":"PROCEDURE","pattern":"Urine protein test"}
+{"label":"PROCEDURE","pattern":"Gonorrhea infection test"}
+{"label":"PROCEDURE","pattern":"Urine culture"}
+{"label":"PROCEDURE","pattern":"Hepatitis C antibody test"}
+{"label":"PROCEDURE","pattern":"Measurement of Varicella-zoster virus antibody"}
+{"label":"PROCEDURE","pattern":"Cytopathology procedure  preparation of smear  genital source"}
+{"label":"PROCEDURE","pattern":"Hepatitis B Surface Antigen Measurement"}
+{"label":"PROCEDURE","pattern":"Blood typing  RH typing"}
+{"label":"PROCEDURE","pattern":"Human immunodeficiency virus antigen test"}
+{"label":"PROCEDURE","pattern":"Skin test for tuberculosis"}
+{"label":"PROCEDURE","pattern":"Physical examination of mother"}
+{"label":"PROCEDURE","pattern":"Epidural anesthesia"}
+{"label":"PROCEDURE","pattern":"Cesarean section"}
+{"label":"PROCEDURE","pattern":"Knee X-ray"}
+{"label":"PROCEDURE","pattern":"Subcutaneous immunotherapy"}
+{"label":"PROCEDURE","pattern":"Surgical manipulation of joint of knee"}
+{"label":"PROCEDURE","pattern":"Percutaneous mechanical thrombectomy of portal vein using fluoroscopic guidance"}
+{"label":"PROCEDURE","pattern":"Insertion of intrauterine contraceptive device"}
+{"label":"PROCEDURE","pattern":"Induced termination of pregnancy"}
+{"label":"PROCEDURE","pattern":"Counseling for termination of pregnancy"}
+{"label":"PROCEDURE","pattern":"Replacement of contraceptive intrauterine device"}
+{"label":"PROCEDURE","pattern":"Pregnancy termination care"}
+{"label":"PROCEDURE","pattern":"Physical exam following abortion"}
+{"label":"PROCEDURE","pattern":"Prostatectomy"}
+{"label":"PROCEDURE","pattern":"Monitoring of patient (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Augmentation of labor"}
+{"label":"PROCEDURE","pattern":"Removal of subcutaneous contraceptive"}
+{"label":"PROCEDURE","pattern":"Information gathering (procedure)"}
+{"label":"PROCEDURE","pattern":"Insertion of subcutaneous contraceptive"}
+{"label":"PROCEDURE","pattern":"Medical induction of labor"}
+{"label":"PROCEDURE","pattern":"Injection of tetanus antitoxin"}
+{"label":"PROCEDURE","pattern":"RhD passive immunization"}
+{"label":"PROCEDURE","pattern":"Admission to trauma surgery department"}
+{"label":"PROCEDURE","pattern":"Spontaneous breech delivery"}
+{"label":"PROCEDURE","pattern":"Referral to home health care service (procedure)"}
+{"label":"PROCEDURE","pattern":"X-ray or wrist"}
+{"label":"PROCEDURE","pattern":"Pelvis X-ray"}
+{"label":"PROCEDURE","pattern":"Instrumental delivery"}
+{"label":"PROCEDURE","pattern":"Insertion of biventricular implantable cardioverter defibrillator"}
+{"label":"PROCEDURE","pattern":"Computed tomography of chest and abdomen"}
+{"label":"PROCEDURE","pattern":"Sputum microscopy (procedure)"}
+{"label":"PROCEDURE","pattern":"Removal of intrauterine device"}
+{"label":"PROCEDURE","pattern":"Resuscitation using intravenous fluid (procedure)"}
+{"label":"PROCEDURE","pattern":"Transfer to stepdown unit (procedure)"}
+{"label":"PROCEDURE","pattern":"Mammogram - symptomatic (procedure)"}
+{"label":"PROCEDURE","pattern":"Magnetic resonance imaging of breast (procedure)"}
+{"label":"PROCEDURE","pattern":"Biopsy of breast (procedure)"}
+{"label":"PROCEDURE","pattern":"Human epidermal growth factor receptor 2 gene detection by fluorescence in situ hybridization (procedure)"}
+{"label":"PROCEDURE","pattern":"Human epidermal growth factor receptor 2 gene detection by immunohistochemistry (procedure)"}
+{"label":"PROCEDURE","pattern":"Excision of breast tissue (procedure)"}
+{"label":"PROCEDURE","pattern":"Teleradiotherapy procedure (procedure)"}
+{"label":"PROCEDURE","pattern":"Premature birth of newborn"}
+{"label":"PROCEDURE","pattern":"Fine needle aspiration biopsy of lung (procedure)"}
+{"label":"PROCEDURE","pattern":"Vasectomy"}
+{"label":"PROCEDURE","pattern":"Biopsy of colon"}
+{"label":"PROCEDURE","pattern":"Extraction of wisdom tooth"}
+{"label":"PROCEDURE","pattern":"Movement therapy (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Cognitive and behavioral therapy (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Ultrasonography of abdomen  right upper quadrant and epigastrium"}
+{"label":"PROCEDURE","pattern":"Intubation"}
+{"label":"PROCEDURE","pattern":"Laparoscopic Removal of Gall Bladder"}
+{"label":"PROCEDURE","pattern":"Psychosocial care (regime/therapy)"}
+{"label":"PROCEDURE","pattern":"Ultrasonography of bilateral breasts (procedure)"}
+{"label":"PROCEDURE","pattern":"Chemotherapy (procedure)"}
+{"label":"PROCEDURE","pattern":"Intravenous blood transfusion of packed cells (procedure)"}
+{"label":"PROCEDURE","pattern":"Sentinel lymph node biopsy (procedure)"}
+{"label":"PROCEDURE","pattern":"Excision of sentinel lymph node (procedure)"}
+{"label":"PROCEDURE","pattern":"Thoracentesis (procedure)"}
+{"label":"PROCEDURE","pattern":"Percutaneous coronary intervention"}
+{"label":"PROCEDURE","pattern":"Coronary artery bypass grafting"}
+{"label":"PROCEDURE","pattern":"Antenatal RhD antibody screening"}
+{"label":"PROCEDURE","pattern":"Allergy screening test"}
+{"label":"PROCEDURE","pattern":"Appendectomy"}
+{"label":"PROCEDURE","pattern":"Screening mammography (procedure)"}
+{"label":"PROCEDURE","pattern":"Lumpectomy of breast (procedure)"}
+{"label":"PROCEDURE","pattern":"Nasal sinus endoscopy (procedure)"}
+{"label":"PROCEDURE","pattern":"Admission to burn unit"}
+{"label":"PROCEDURE","pattern":"Admission to long stay hospital"}
+{"label":"PROCEDURE","pattern":"Mental health screening (procedure)"}
+{"label":"PROCEDURE","pattern":"Suicide risk assessment (procedure)"}
+{"label":"PROCEDURE","pattern":"Face mask (physical object)"}
+{"label":"PROCEDURE","pattern":"Admit to ICU (procedure)"}
+{"label":"PROCEDURE","pattern":"Insertion of endotracheal tube (procedure)"}
+{"label":"PROCEDURE","pattern":"Controlled ventilation procedure and therapy  initiation and management (procedure)"}
+{"label":"PROCEDURE","pattern":"Hemodialysis (procedure)"}
+{"label":"PROCEDURE","pattern":"Methotrexate injection into tubal pregnancy"}
+{"label":"PROCEDURE","pattern":"Microbial culture (procedure)"}
