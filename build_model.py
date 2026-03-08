@@ -32,7 +32,7 @@ try:
     print("XGBoost Brain saved as 'medical_xgboost.json'.")
 
 except FileNotFoundError:
-    print("CRITICAL ERROR: 'diabetes.csv' not found. Please download it from Kaggle.")
+    print("CRITICAL ERROR: 'diabetes.csv' not found.")
 
 # VERIFY BIOBERT
 print("\nVerifying BioBERT availability...")
