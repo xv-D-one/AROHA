@@ -1,4 +1,7 @@
-flask==3.0.0
+fastapi
+uvicorn
+python-multipart
+jinja2
 pandas
 numpy
 xgboost
@@ -7,5 +10,10 @@ openpyxl
 opencv-python
 pytesseract
 spacy
-scispacy
-https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_sm-0.5.3.tar.gz
+motor
+boto3
+python-dotenv
+python-jose
+passlib[bcrypt]
+redis
+arq

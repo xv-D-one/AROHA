@@ -1,20 +1,12 @@
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'D:\TESSERACT-OCR\tesseract.exe'
 from PIL import Image
 import re
 import os
 import spacy
-from transformers import pipeline
 
 print("Loading NLP models...")
 
 nlp = spacy.load("en_core_web_sm")
-
-biobert = pipeline(
-    "text-classification",
-    model="dmis-lab/biobert-base-cased-v1.1",
-    tokenizer="dmis-lab/biobert-base-cased-v1.1"
-)
 
 print("Models Loaded")
 
@@ -172,8 +164,6 @@ def generate_clinical_summary(explanations, symptoms):
 
     if symptoms:
         summary += " Reported patient symptoms include " + ", ".join(symptoms) + "."
-
-    _ = biobert(summary)
 
     return summary
 
