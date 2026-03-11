@@ -34,14 +34,14 @@ async function apiFetch(method, path, body = null) {
 //  CONSTANTS
 // ─────────────────────────────────────────────────────────────────────────────
 const RECORD_TYPES = [
-  { value: "Lab Report",       icon: "🧪", color: "#0ea5e9" },
-  { value: "Prescription",     icon: "💊", color: "#6366f1" },
-  { value: "Imaging",          icon: "🫁", color: "#14b8a6" },
-  { value: "Discharge Summary",icon: "📋", color: "#f59e0b" },
-  { value: "Consultation Note",icon: "🩺", color: "#8b5cf6" },
-  { value: "Surgery Report",   icon: "⚕️", color: "#ef4444" },
-  { value: "Vaccination",      icon: "💉", color: "#10b981" },
-  { value: "Allergy Report",   icon: "⚠️", color: "#f97316" },
+  { value: "Lab Report",       color: "#0ea5e9" },
+  { value: "Prescription",      color: "#6366f1" },
+  { value: "Imaging",          color: "#14b8a6" },
+  { value: "Discharge Summary", color: "#f59e0b" },
+  { value: "Consultation Note", color: "#8b5cf6" },
+  { value: "Surgery Report",   color: "#ef4444" },
+  { value: "Vaccination",      color: "#10b981" },
+  { value: "Allergy Report",   color: "#f97316" },
 ];
 
 const SEVERITY = ["Normal", "Mild", "Moderate", "Severe", "Critical"];
