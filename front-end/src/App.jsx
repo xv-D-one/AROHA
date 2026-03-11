@@ -39,7 +39,7 @@ function App() {
         <Route path="doctors/create" element={<CreateDoctor />} />
         <Route path="patients" element={<PatientsPage />} />
         <Route path="patients/create" element={<CreatePatient />} />
-        <Route path="patients/create" element={<AdminMedicalRecords />} />
+        <Route path="admin/records" element={<AdminMedicalRecords />} />
       </Route>
 
       {/* Doctor Routes */}
