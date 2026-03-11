@@ -1,11 +1,12 @@
 from typing import Any, Mapping
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+import certifi
 
 from config import settings
 
 
-client = AsyncIOMotorClient(settings.MONGO_URI)
+client = AsyncIOMotorClient(settings.MONGO_URI, tlsCAFile=certifi.where())
 db: AsyncIOMotorDatabase = client[settings.MONGO_DB]
 
 
@@ -14,8 +15,14 @@ async def create_indexes() -> None:
 
     Idempotent: safe to call on startup.
     """
+    print("Connecting to MongoDB and creating indexes...")
+    try:
 
-    await db.users.create_index("email", unique=True)
+        await db.users.create_index("email", unique=True)
+        print("Indexes created successfully.")
+    except Exception as e:
+        print(f"Error creating indexes: {e}")
+        raise e
     await db.users.create_index("role")
 
     await db.patients.create_index("user_id")

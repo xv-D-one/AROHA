@@ -1,91 +1,101 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Patient View - AROHA Medical AI</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <title>Patient View - AROHA Medical AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-<div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8">
 
-<h1 class="text-3xl font-bold text-center text-blue-600 mb-8">Patient Report Analysis</h1>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-8">Patient Report Analysis</h1>
 
-<div class="bg-white shadow-lg rounded-lg p-6 mb-8">
-<h2 class="text-2xl font-semibold mb-4">Upload Your Medical Report</h2>
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Upload Your Medical Report</h2>
 
-<form action="/patient" method="post" enctype="multipart/form-data" class="space-y-4">
-<div>
-<label class="block text-sm font-medium text-gray-700">Select Report File</label>
-<input type="file" name="file" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-</div>
+            <form action="/patient" method="post" enctype="multipart/form-data" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Select Report File</label>
+                    <input type="file" name="file"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700">Age</label>
-<select name="age" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-{% for i in range(1, 101) %}
-<option value="{{ i }}">{{ i }}</option>
-{% endfor %}
-</select>
-</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Age</label>
+                        <select name="age"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            {% for i in range(1, 101) %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-<div>
-<label class="block text-sm font-medium text-gray-700">Gender</label>
-<select name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-<option value="Male">Male</option>
-<option value="Female">Female</option>
-<option value="Other">Other</option>
-</select>
-</div>
-</div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select name="gender"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
 
-<button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Analyze Report</button>
-</form>
-</div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Analyze
+                    Report</button>
+            </form>
+        </div>
 
-{% if result %}
+        {% if result %}
 
-<div class="bg-white shadow-lg rounded-lg p-6 mb-8">
-<h2 class="text-2xl font-semibold mb-4 text-green-600">Analysis Results</h2>
-<p class="text-gray-700 mb-4"><strong>Report Type:</strong> {{ result.report_type }}</p>
-<div class="mb-6">
-<h3 class="text-xl font-medium mb-2">Clinical Synopsis</h3>
-<p class="text-gray-700 bg-gray-50 p-4 rounded">{{ result.synopsis }}</p>
-</div>
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-green-600">Analysis Results</h2>
+            <p class="text-gray-700 mb-4"><strong>Report Type:</strong> {{ result.report_type }}</p>
+            <div class="mb-6">
+                <h3 class="text-xl font-medium mb-2">Clinical Synopsis</h3>
+                <p class="text-gray-700 bg-gray-50 p-4 rounded">{{ result.synopsis }}</p>
+            </div>
 
-<div class="mb-6">
-<h3 class="text-xl font-medium mb-2">Lab Results</h3>
-{% if result.findings %}
-<div class="bg-gray-50 p-4 rounded">
-<ul class="space-y-1">
-{% for f in result.findings %}
-<li class="text-gray-700">{{ f }}</li>
-{% endfor %}
-</ul>
-</div>
-{% else %}
-<p class="text-gray-500">No lab values detected in the report.</p>
-{% endif %}
-</div>
+            <div class="mb-6">
+                <h3 class="text-xl font-medium mb-2">Lab Results</h3>
+                {% if result.findings %}
+                <div class="bg-gray-50 p-4 rounded">
+                    <ul class="space-y-1">
+                        {% for f in result.findings %}
+                        <li class="text-gray-700">{{ f }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <p class="text-gray-500">No lab values detected in the report.</p>
+                {% endif %}
+            </div>
 
-<div class="mb-6">
-<h3 class="text-xl font-medium mb-2">Risk Assessment</h3>
-<p class="text-lg font-semibold 
+            <div class="mb-6">
+                <h3 class="text-xl font-medium mb-2">Risk Assessment</h3>
+                <p class="text-lg font-semibold 
 {% if result.risk_level == 'Normal' %}text-green-600
 {% elif result.risk_level == 'Mild Variation' %}text-yellow-600
 {% elif result.risk_level == 'Moderate Monitoring Required' %}text-orange-600
 {% else %}text-red-600
 {% endif %}">{{ result.risk_level }}</p>
-</div>
+            </div>
 
-<a href="/" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Back to Home</a>
+            <div class="flex space-x-4">
+                <a href="/" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Back to Home</a>
+                <a href="/logout" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Log Out</a>
+            </div>
 
-</div>
+        </div>
 
-{% endif %}
+        {% endif %}
 
-</div>
+    </div>
 
 </body>
+
 </html>

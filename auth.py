@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -48,12 +48,17 @@ class CurrentUser:
         self.doctor_id = doctor_id
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> CurrentUser:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+async def get_current_user(request: Request) -> CurrentUser:
+    token = request.cookies.get("access_token")
+    if not token and "Authorization" in request.headers:
+        auth_header = request.headers["Authorization"]
+        if auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+
+    if not token:
+        # If no token, return None to allow routes to handle redirect vs 401
+        return None
+
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
         user_id: str = payload.get("sub")
@@ -61,16 +66,24 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> CurrentUser:
         patient_id: str | None = payload.get("patient_id")
         doctor_id: str | None = payload.get("doctor_id")
         if user_id is None or role is None:
-            raise credentials_exception
+            return None
     except JWTError:
-        raise credentials_exception
+        return None
 
     # lightweight fetch; assumes user still exists
-    user = await db.users.find_one({"_id": user_id})
-    if not user:
-        raise credentials_exception
+    from bson.errors import InvalidId
+    try:
+        user = await db.users.find_one({"_id": user_id})
+        if not user:
+            # Maybe it's an ObjectId string
+            from bson import ObjectId
+            user = await db.users.find_one({"_id": ObjectId(user_id)})
+            if not user:
+                return None
+    except InvalidId:
+        return None
 
-    return CurrentUser(user_id=user_id, role=Role(role), patient_id=patient_id, doctor_id=doctor_id)
+    return CurrentUser(user_id=str(user["_id"]), role=Role(role), patient_id=patient_id, doctor_id=doctor_id)
 
 
 async def require_role(required: Role, current: CurrentUser = Depends(get_current_user)) -> CurrentUser:

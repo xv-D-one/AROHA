@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sign Up - AROHA Medical AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full mx-4">
+    <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Create Account</h1>
+    
+    {% if request.query_params.get('error') %}
+    <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
+        {{ request.query_params.get('error') }}
+    </div>
+    {% endif %}
+
+    <form action="/signup_web" method="post" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Role</label>
+            <select name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Email Address</label>
+            <input type="email" name="email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+        </div>
+        
+        <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Sign Up</button>
+    </form>
+    
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600">Already have an account? <a href="/login" class="text-blue-600 hover:underline">Log in</a></p>
+        <p class="text-sm text-gray-600 mt-2"><a href="/" class="text-gray-500 hover:underline">Back to Home</a></p>
+    </div>
+</div>
+
+</body>
+</html>
