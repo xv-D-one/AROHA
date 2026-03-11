@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 
-import LandingPage from "./features/landing/LandingPage";
 import Login from "./pages/Login";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -9,19 +8,22 @@ import PatientDashboard from "./pages/patient/PatientDashboard";
 
 import DoctorsPage from "./pages/admin/DoctorsPage";
 import PatientsPage from "./pages/admin/PatientsPage";
+import CreatePatient from "./pages/admin/CreatePatient";
+
 
 import AdminLayout from "./components/layout/AdminLayout";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import CreateDoctor from "./pages/admin/CreateDoctor";
+import AdminMedicalRecords from "./pages/admin/Adminmedicalrecords";
+
 
 function App() {
   return (
     <Routes>
 
       {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Login />} />
 
       {/* Admin Routes with Layout */}
       <Route
@@ -36,6 +38,8 @@ function App() {
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="doctors/create" element={<CreateDoctor />} />
         <Route path="patients" element={<PatientsPage />} />
+        <Route path="patients/create" element={<CreatePatient />} />
+        <Route path="patients/create" element={<AdminMedicalRecords />} />
       </Route>
 
       {/* Doctor Routes */}
