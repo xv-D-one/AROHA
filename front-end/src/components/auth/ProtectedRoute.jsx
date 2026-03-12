@@ -9,9 +9,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <div>Loading...</div>;
   }
 
-  // user not logged in
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // role not allowed

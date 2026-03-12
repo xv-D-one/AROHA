@@ -36,6 +36,8 @@ wheels/
 .env.test
 back-end/.env
 front-end/.env
+uploads/
+back-end/env
 
 # Editor
 .vscode/
