@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/useAuth";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ⚙️  API CONFIG
@@ -16,6 +18,53 @@ const API = {
     vitals:        "/patient/vitals",
     notifications: "/patient/notifications",
   },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DOCTOR TEAM MAPPING
+// ─────────────────────────────────────────────────────────────────────────────
+const DOCTOR_TEAM = [
+  { id: "D-101", name: "Dr. Arjun Pillai",    specialty: "Cardiology",       department: "Cardiology", avatar: "AP" },
+  { id: "D-102", name: "Dr. Kavya Menon",     specialty: "Dermatology",      department: "Dermatology", avatar: "KM" },
+  { id: "D-103", name: "Dr. Nikhil Thomas",   specialty: "Radiology",        department: "Radiology", avatar: "NT" },
+  { id: "D-104", name: "Dr. Sarah Varghese",  specialty: "Hematology",       department: "Hematology", avatar: "SV" },
+  { id: "D-105", name: "Dr. Rohan Kumar",     specialty: "Nephrology",       department: "Nephrology", avatar: "RK" },
+  { id: "D-106", name: "Dr. Priya Sharma",    specialty: "General Medicine", department: "General Medicine", avatar: "PS" },
+  { id: "D-107", name: "Dr. James Oomen",     specialty: "Orthopedics",      department: "Orthopedics", avatar: "JO" }
+];
+
+const assignDoctorByReportType = (reportType, patientProfile) => {
+  if (!reportType) return DOCTOR_TEAM.find(d => d.specialty === "General Medicine") || { name: "General Physician" };
+
+  const type = reportType.toLowerCase();
+  let requiredDept = "General Medicine";
+
+  if (type.includes("blood") || type.includes("cbc")) {
+    requiredDept = "Hematology";
+  } else if (type.includes("renal") || type.includes("kidney") || type.includes("creatinine")) {
+    requiredDept = "Nephrology";
+  } else if (type.includes("cardio") || type.includes("ecg") || type.includes("heart")) {
+    requiredDept = "Cardiology";
+  } else if (type.includes("x-ray") || type.includes("mri") || type.includes("imaging") || type.includes("scan")) {
+    requiredDept = "Radiology";
+  } else if (type.includes("bone") || type.includes("fracture")) {
+    requiredDept = "Orthopedics";
+  }
+
+  // Check if patient already has an assigned doctor that matches the required specialty
+  if (patientProfile?.assignedDoctor && patientProfile?.department === requiredDept) {
+    const existingDoc = DOCTOR_TEAM.find(d => d.name === patientProfile.assignedDoctor);
+    if (existingDoc) return existingDoc;
+  }
+
+  // Otherwise filter and assign randomly
+  const matchingDoctors = DOCTOR_TEAM.filter(d => d.department === requiredDept);
+  if (matchingDoctors.length > 0) {
+    return matchingDoctors[Math.floor(Math.random() * matchingDoctors.length)];
+  }
+
+  // Fallback to General Medicine
+  return DOCTOR_TEAM.find(d => d.specialty === "General Medicine") || { name: "General Physician" };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -120,6 +169,29 @@ function useDummyData(key, delay=400) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[key]);
   return {data,loading};
+}
+
+function useRecords() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const fetchRecords = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/records", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => { fetchRecords(); }, []);
+  return { data, loading, refetch: fetchRecords };
 }
 
 function Skel({h=18,w="100%",r=8}){
@@ -389,16 +461,113 @@ function OverviewPage({ profile, vitals, records, appointments, medications, onV
   );
 }
 
-function RecordsPage({ records, loading, onViewRecord }) {
+function RecordsPage({ records, loading, onViewRecord, refetchRecords }) {
   const [search,setSearch]=useState("");
   const [filter,setFilter]=useState("All");
+  const [uploading,setUploading]=useState(false);
+  const fileInputRef = useRef(null);
+
   const types=["All",...new Set((records||[]).map(r=>r.type))];
   const filtered=(records||[]).filter(r=>(filter==="All"||r.type===filter)&&(!search||r.title.toLowerCase().includes(search.toLowerCase())||r.doctor.toLowerCase().includes(search.toLowerCase())));
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    
+    // Using formData to send the file to the backend
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("age", "30"); // Usually from profile, mocked here
+    formData.append("gender", "F");
+
+    try {
+      // Pointing to the new flask API route
+      const response = await fetch("http://127.0.0.1:5001/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const result = await response.json();
+      
+      // Determine Attending Doctor based on AI Report Type
+      const assignedDoc = assignDoctorByReportType(result.report_type, DUMMY_PROFILE);
+      
+      const payload = {
+        title: file.name,
+        type: result.report_type || "Analyzed Report",
+        doctor: assignedDoc.name,
+        severity: result.risk_level || "Normal",
+        aiSummary: result.synopsis || "Document successfully analyzed.",
+        attachments: [file.name],
+        tags: ["AI Analysis", result.report_type, assignedDoc.specialty].filter(Boolean)
+      };
+
+      // Persist to MongoDB backend
+      const saveRes = await fetch("http://localhost:5000/api/records", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const savedRecord = await saveRes.json();
+      
+      if (refetchRecords) refetchRecords();
+      onViewRecord(savedRecord);
+
+    } catch (error) {
+      alert("Error analyzing document: " + error.message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div style={{animation:"fadeUp .3s ease"}}>
-      <div style={{marginBottom:"1.5rem"}}>
-        <div style={{fontSize:"1.1rem",fontWeight:800,color:"#0f172a"}}>My Medical Records</div>
-        <div style={{fontSize:"0.7rem",color:"#94a3b8",marginTop:2}}>All your health documents in one place</div>
+      <div style={{marginBottom:"1.5rem", display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
+        <div>
+          <div style={{fontSize:"1.1rem",fontWeight:800,color:"#0f172a"}}>My Medical Records</div>
+          <div style={{fontSize:"0.7rem",color:"#94a3b8",marginTop:2}}>All your health documents in one place</div>
+        </div>
+        <div>
+          <input 
+            type="file" 
+            accept=".pdf,.png,.jpg,.jpeg" 
+            style={{display: "none"}} 
+            ref={fileInputRef} 
+            onChange={handleUpload} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()} 
+            disabled={uploading}
+            style={{
+              padding:"9px 18px",
+              borderRadius:10,
+              background:"linear-gradient(135deg,#0ea5e9,#6366f1)",
+              color:"#fff",
+              fontSize:"0.75rem",
+              fontWeight:700,
+              cursor: uploading ? "not-allowed" : "pointer",
+              border:"none",
+              boxShadow:"0 4px 12px rgba(14,165,233,0.3)",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              opacity: uploading ? 0.7 : 1
+            }}
+          >
+            {uploading ? "⏳ Analyzing with Aroha AI..." : "📤 Upload Document"}
+          </button>
+        </div>
       </div>
       <div style={{display:"flex",gap:10,marginBottom:"1.25rem",flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:9,padding:"7px 13px",flex:1,minWidth:180}}>
@@ -423,7 +592,7 @@ function RecordsPage({ records, loading, onViewRecord }) {
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:4}}>
                   <div style={{fontSize:"0.85rem",fontWeight:700,color:"#0f172a"}}>{r.title}</div>
-                  <span style={{fontSize:"0.62rem",fontWeight:700,padding:"2px 8px",borderRadius:99,background:SEV_BG[r.severity],color:SEV_COLOR[r.severity],flexShrink:0,border:`1px solid ${SEV_COLOR[r.severity]}33`}}>{r.severity}</span>
+                  <span style={{fontSize:"0.62rem",fontWeight:700,padding:"2px 8px",borderRadius:99,background:SEV_BG[r.severity] || "#f1f5f9",color:SEV_COLOR[r.severity] || "#475569",flexShrink:0,border:`1px solid ${SEV_COLOR[r.severity] || "#cbd5e1"}33`}}>{r.severity}</span>
                 </div>
                 <div style={{fontSize:"0.68rem",color:r.color,fontWeight:700,marginBottom:3}}>{r.type}</div>
                 <div style={{fontSize:"0.65rem",color:"#94a3b8"}}>{fmtDate(r.date)} · {r.doctor}</div>
@@ -655,6 +824,14 @@ function PRow({ label, val }) {
 //  MAIN LAYOUT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function PatientDashboard() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   const [page,setPage]              = useState("overview");
   const [notifOpen,setNotifOpen]    = useState(false);
   const [viewRecord,setViewRecord]  = useState(null);
@@ -662,9 +839,11 @@ export default function PatientDashboard() {
   const [notifs,setNotifs]          = useState(DUMMY_NOTIFICATIONS);
   const notifRef = useRef(null);
 
-  const {data:profile,  loading:pl} = useDummyData("profile",     300);
+  const {data:dummyProfile,  loading:pl} = useDummyData("profile",     300);
+  const profile = dummyProfile ? { ...dummyProfile, name: user?.name || dummyProfile.name, email: user?.email || dummyProfile.email } : null;
   const {data:vitals} = useDummyData("vitals",      450);
-  const {data:records,  loading:rl} = useDummyData("records",     500);
+  const {data:records,  loading:rl, refetch:refetchRecords} = useRecords();
+
   const {data:appts,    loading:al} = useDummyData("appointments",550);
   const {data:meds,     loading:ml} = useDummyData("medications", 480);
 
@@ -863,6 +1042,13 @@ export default function PatientDashboard() {
             ))}
           </div>
 
+          <div style={{padding:"0 0.75rem 0.75rem"}}>
+              <div onClick={handleLogout} className="pd-nav-item" style={{color: "#ef4444", marginBottom: 0}}>
+                <span style={{fontSize:"1.1rem",width:20,textAlign:"center"}}>🚪</span>
+                <span>Logout</span>
+              </div>
+          </div>
+
           {!pl && (
             <div className="pd-user-card">
               <div className="pd-user-inner" onClick={()=>setPage("profile")}>
@@ -925,7 +1111,7 @@ export default function PatientDashboard() {
           {/* Content */}
           <main className="pd-content">
             {page==="overview"     && <OverviewPage     profile={profile} vitals={vitals} records={records} appointments={appts} medications={meds} onViewRecord={setViewRecord} onPage={setPage}/>}
-            {page==="records"      && <RecordsPage      records={records}      loading={rl} onViewRecord={setViewRecord}/>}
+            {page==="records"      && <RecordsPage      records={records}      loading={rl} onViewRecord={setViewRecord} refetchRecords={refetchRecords}/>}
             {page==="appointments" && <AppointmentsPage appointments={appts}   loading={al}/>}
             {page==="medications"  && <MedicationsPage  medications={meds}     loading={ml}/>}
             {page==="profile"      && <ProfilePage      profile={profile}      loading={pl}/>}

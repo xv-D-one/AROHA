@@ -4,17 +4,40 @@ from PIL import Image
 import re
 import os
 import spacy
-from transformers import pipeline
+try:
+    from transformers import pipeline
+except ImportError:
+    print("Warning: transformers package not found. BioBERT will not be available.")
+    pipeline = None
 
 print("Loading NLP models...")
 
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except:
+    nlp = None
 
-biobert = pipeline(
-    "text-classification",
-    model="dmis-lab/biobert-base-cased-v1.1",
-    tokenizer="dmis-lab/biobert-base-cased-v1.1"
-)
+try:
+    biobert = pipeline(
+        "text-classification",
+        model="dmis-lab/biobert-base-cased-v1.1",
+        tokenizer="dmis-lab/biobert-base-cased-v1.1"
+    )
+except Exception as e:
+    print(f"Warning: Could not load BioBERT ({e}). Using dummy fallback.")
+    biobert = lambda x: [{"label": "NORMAL", "score": 0.9}]
+
+# Try common Tesseract paths
+tess_paths = [
+    r'D:\TESSERACT-OCR\tesseract.exe',
+    r'C:\Program Files\Tesseract-OCR\tesseract.exe',
+    r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
+    r'C:\Users\DHANVIN RANJITH\AppData\Local\Tesseract-OCR\tesseract.exe'
+]
+for p in tess_paths:
+    if os.path.exists(p):
+        pytesseract.pytesseract.tesseract_cmd = p
+        break
 
 print("Models Loaded")
 

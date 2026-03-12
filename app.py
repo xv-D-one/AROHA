@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import os
 from ai_pipeline import analyze_medical_report_local
+from flask_cors import CORS
 print("APP FILE RUNNING FROM:", __file__)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes so the frontend can access the API
+
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -39,6 +42,25 @@ def patient():
             result = analyze_medical_report_local(filepath, age, gender)
 
     return render_template("patient.html", result=result)
+
+
+@app.route("/api/analyze", methods=["POST"])
+def api_analyze():
+    file = request.files.get("file")
+    if not file or file.filename == "":
+        return jsonify({"error": "No file provided"}), 400
+
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+    file.save(filepath)
+
+    age = request.form.get("age", "30")
+    gender = request.form.get("gender", "F")
+
+    try:
+        result = analyze_medical_report_local(filepath, age, gender)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------- DOCTOR VIEW ----------------
