@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import CompareRecords from "../../components/CompareRecords";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ⚙️  API CONFIG
@@ -465,6 +466,7 @@ function RecordsPage({ records, loading, onViewRecord, refetchRecords }) {
   const [search,setSearch]=useState("");
   const [filter,setFilter]=useState("All");
   const [uploading,setUploading]=useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const types=["All",...new Set((records||[]).map(r=>r.type))];
@@ -538,7 +540,25 @@ function RecordsPage({ records, loading, onViewRecord, refetchRecords }) {
           <div style={{fontSize:"1.1rem",fontWeight:800,color:"#0f172a"}}>My Medical Records</div>
           <div style={{fontSize:"0.7rem",color:"#94a3b8",marginTop:2}}>All your health documents in one place</div>
         </div>
-        <div>
+        <div style={{display: "flex", gap: "10px"}}>
+          <button 
+            onClick={() => setCompareOpen(true)}
+            style={{
+              padding: "9px 18px",
+              borderRadius: 10,
+              background: "#fff",
+              border: "1.5px solid #e2e8f0",
+              color: "#475569",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px"
+            }}
+          >
+            ⚖️ Compare Records
+          </button>
           <input 
             type="file" 
             accept=".pdf,.png,.jpg,.jpeg" 
@@ -603,6 +623,12 @@ function RecordsPage({ records, loading, onViewRecord, refetchRecords }) {
           ))
         }
       </div>
+      {compareOpen && (
+        <CompareRecords 
+          records={records || []} 
+          onClose={() => setCompareOpen(false)} 
+        />
+      )}
     </div>
   );
 }
@@ -1125,6 +1151,11 @@ export default function PatientDashboard() {
 
       {/* Record detail modal */}
       {viewRecord && <RecordModal record={viewRecord} onClose={()=>setViewRecord(null)}/>}
+
+      {/* Compare modal managed by RecordsPage state if needed, or global */}
+      {/* We decided to put it in RecordsPage for now, but the prompt says Patient also needs it.
+          Let's make sure it's accessible.
+      */}
     </>
   );
 }

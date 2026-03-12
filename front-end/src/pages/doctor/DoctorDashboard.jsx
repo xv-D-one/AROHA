@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/useAuth";
+import CompareRecords from "../../components/CompareRecords";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ⚙️  API CONFIG
@@ -8,10 +11,10 @@ const API = {
   USE_REAL_API: false,
   EP: {
     profile:      "/doctor/me",
-    patients:     "/doctor/patients",
+    patients:     "/patients", // Use global patients endpoint
     appointments: "/doctor/appointments",
-    records:      "/doctor/records",
-    notes:        "/doctor/notes",
+    records:      "/records", // Use global records endpoint
+    notes:        "/notes",   // Use global notes endpoint
     messages:     "/doctor/messages",
     stats:        "/doctor/stats",
   },
@@ -135,7 +138,22 @@ function useDummyFetch(key, dummyData, delay=420) {
     setLoading(true);
     if (!API.USE_REAL_API) { const t=setTimeout(()=>{setData(dummyData);setLoading(false);},delay+Math.random()*180); return()=>clearTimeout(t); }
     fetch(`${API.BASE_URL}${API.EP[key]}`,{headers:{Authorization:`Bearer ${localStorage.getItem("token")}`}})
-      .then(r=>r.json()).then(d=>{setData(d);setLoading(false);}).catch(()=>{setData(dummyData);setLoading(false);});
+      .then(r=>r.json())
+      .then(d=>{
+        // Ensure data is an array for list endpoints or fallback to dummy
+        if (["patients", "appointments", "records", "notes", "messages"].includes(key) && !Array.isArray(d)) {
+          console.warn(`API returned non-array for ${key}:`, d);
+          setData(dummyData);
+        } else {
+          setData(d);
+        }
+        setLoading(false);
+      })
+      .catch((err)=>{
+        console.error(`Fetch error for ${key}:`, err);
+        setData(dummyData);
+        setLoading(false);
+      });
   },[delay, dummyData, key]);
   return {data,loading};
 }
@@ -150,10 +168,46 @@ function NoteModal({ patients, editNote, onClose, onSave }) {
   const handleSave=async()=>{
     if(!form.patientId||!form.note.trim()) return;
     setSaving(true);
-    await new Promise(r=>setTimeout(r,600));
-    const pat=patients?.find(p=>p.id===form.patientId);
-    onSave({...editNote,...form,id:editNote?.id||`N-${Date.now()}`,patientName:pat?.name||"",date:new Date().toISOString().slice(0,10),color:avatarColor(pat?.avatar||"A")});
-    setSaving(false);
+    try {
+      let savedNote;
+      if (API.USE_REAL_API) {
+        const pat = patients?.find(p=>p.id===form.patientId || p.patientId===form.patientId);
+        const payload = {
+          ...form,
+          patientName: pat?.name || "Unknown",
+          doctorId: "D-001", // Placeholder until profile API is fully ready
+          date: new Date().toISOString()
+        };
+        if (editNote) {
+          savedNote = await fetch(`${API.BASE_URL}/notes/${editNote._id || editNote.id}`, {
+            method: "PUT",
+            headers: { 
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(payload)
+          }).then(r => r.json());
+        } else {
+          savedNote = await fetch(`${API.BASE_URL}/notes`, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(payload)
+          }).then(r => r.json());
+        }
+      } else {
+        await new Promise(r=>setTimeout(r,600));
+        const pat=patients?.find(p=>p.id===form.patientId || p.patientId===form.patientId);
+        savedNote = {...editNote,...form,id:editNote?.id||`N-${Date.now()}`,patientName:pat?.name||"",date:new Date().toISOString().slice(0,10),color:avatarColor(pat?.avatar||"A")};
+      }
+      onSave(savedNote);
+    } catch (err) {
+      console.error("Save Note Error:", err);
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <div onClick={e=>{if(e.target===e.currentTarget)onClose();}} style={{position:"fixed",inset:0,background:"rgba(10,18,38,0.65)",backdropFilter:"blur(5px)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",animation:"fadeIn .2s"}}>
@@ -197,8 +251,9 @@ function NoteModal({ patients, editNote, onClose, onSave }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function PatientDrawer({ patient, records, notes, onClose, onAddNote }) {
   const [tab,setTab]=useState("overview");
-  const patRecs = (records||[]).filter(r=>r.patientId===patient.id);
-  const patNotes = (notes||[]).filter(n=>n.patientId===patient.id);
+  const patId = patient.patientId || patient.id || patient._id;
+  const patRecs = (records||[]).filter(r=>(r.patientId||r.id||r._id)===patId);
+  const patNotes = (notes||[]).filter(n=>(n.patientId||n.id||n._id)===patId);
   const rk = RISK_S[patient.risk]||RISK_S.Low;
 
   return (
@@ -224,7 +279,12 @@ function PatientDrawer({ patient, records, notes, onClose, onAddNote }) {
           </div>
           {/* Vitals strip */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-            {[["❤️","BP",patient.vitals.bp],["💓","HR",`${patient.vitals.hr}bpm`],["🫁","SpO₂",`${patient.vitals.spo2}%`],["🌡️","Temp",`${patient.vitals.temp}°F`]].map(([ic,l,v])=>(
+            {[
+              ["❤️","BP",   patient.vitals?.bp     || "—"],
+              ["💓","HR",   patient.vitals?.hr     ? `${patient.vitals.hr}bpm` : "—"],
+              ["🫁","SpO₂", patient.vitals?.spo2   ? `${patient.vitals.spo2}%` : "—"],
+              ["🌡️","Temp", patient.vitals?.temp   ? `${patient.vitals.temp}°F` : "—"]
+            ].map(([ic,l,v])=>(
               <div key={l} style={{background:"rgba(255,255,255,.1)",borderRadius:9,padding:"7px 8px",textAlign:"center",border:"1px solid rgba(255,255,255,.1)"}}>
                 <div style={{fontSize:"0.85rem"}}>{ic}</div>
                 <div style={{fontSize:"0.8rem",fontWeight:800,color:"#fff",fontFamily:"'JetBrains Mono',monospace"}}>{v}</div>
@@ -272,6 +332,10 @@ function PatientDrawer({ patient, records, notes, onClose, onAddNote }) {
           {/* Records tab */}
           {tab==="records" && (
             <div style={{animation:"fadeUp .25s ease"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:"0.65rem",fontWeight:800,color:"#94a3b8",textTransform:"uppercase"}}>Patient History</div>
+                <button onClick={() => window.dispatchEvent(new CustomEvent('open-compare'))} style={{fontSize:"0.65rem",fontWeight:700,color:"#6366f1",background:"#eff6ff",border:"1px solid #e0e7ff",padding:"3px 10px",borderRadius:6,cursor:"pointer"}}>Compare Records</button>
+              </div>
               {patRecs.length===0 ? <div style={{textAlign:"center",padding:"2rem",color:"#94a3b8",fontSize:"0.8rem"}}>No records yet</div>
                 : patRecs.map(r=>(
                   <div key={r.id} style={{background:"#f8fafc",borderRadius:11,padding:"11px 13px",marginBottom:9,border:`1px solid #e2e8f0`,borderLeft:`3px solid ${r.color}`}}>
@@ -356,8 +420,8 @@ function OverviewPage({ doctor, patients, appointments, notes, messages, onViewP
             </div>
             <div>
               <div style={{fontSize:"0.68rem",color:"rgba(255,255,255,.45)",fontWeight:600,marginBottom:2}}>Welcome back,</div>
-              <div style={{fontSize:"1.3rem",fontWeight:800,color:"#fff",lineHeight:1.15}}>{doctor?.name||"Doctor"}</div>
-              <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,.5)",marginTop:3}}>{doctor?.specialty} · {doctor?.department}</div>
+              <div style={{fontSize:"1.3rem",fontWeight:800,color:"#fff",lineHeight:1.15}}>{doctor?.name||user?.name||"Doctor"}</div>
+              <div style={{fontSize:"0.7rem",color:"rgba(255,255,255,.5)",marginTop:3}}>{doctor?.specialty || "Cardiologist"} · {doctor?.department || "Cardiac Sciences"}</div>
             </div>
           </div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
@@ -513,7 +577,14 @@ function PatientsPage({ patients, loading, onViewPatient, onAddNote }) {
   const filtered=(patients||[])
     .filter(p=>filterStatus==="All"||p.status===filterStatus)
     .filter(p=>filterRisk==="All"||p.risk===filterRisk)
-    .filter(p=>!search||p.name.toLowerCase().includes(search.toLowerCase())||p.diagnosis.toLowerCase().includes(search.toLowerCase())||p.id.toLowerCase().includes(search.toLowerCase()))
+    .filter(p=>{
+      if(!search) return true;
+      const s = search.toLowerCase();
+      const pid = (p.patientId || p.id || p._id || "").toString().toLowerCase();
+      const name = (p.name || "").toLowerCase();
+      const diag = (p.diagnosis || "").toLowerCase();
+      return pid.includes(s) || name.includes(s) || diag.includes(s);
+    })
     .sort((a,b)=>sort==="name"?a.name.localeCompare(b.name):sort==="risk"?["Critical","High","Moderate","Low"].indexOf(a.risk)-["Critical","High","Moderate","Low"].indexOf(b.risk):new Date(b.lastVisit)-new Date(a.lastVisit));
   return (
     <div style={{animation:"fadeUp .3s ease"}}>
@@ -552,42 +623,45 @@ function PatientsPage({ patients, loading, onViewPatient, onAddNote }) {
             </tr>
           </thead>
           <tbody>
-            {loading ? Array(4).fill(0).map((_,i)=><tr key={i}><td colSpan={7} style={{padding:"14px"}}><Skel h={36} r={6}/></td></tr>)
-              : filtered.length===0 ? <tr><td colSpan={7} style={{padding:"3rem",textAlign:"center",color:"#94a3b8",fontSize:"0.8rem"}}>No patients found</td></tr>
-              : filtered.map(p=>(
-                <tr key={p.id} style={{cursor:"pointer",transition:"background .12s"}}
-                  onMouseEnter={e=>{ for(let td of e.currentTarget.cells) td.style.background="#f8fafc"; }}
-                  onMouseLeave={e=>{ for(let td of e.currentTarget.cells) td.style.background=""; }}
-                  onClick={()=>onViewPatient(p)}>
-                  <td style={{padding:"11px 14px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:9}}>
-                      <div style={{width:34,height:34,borderRadius:9,background:avatarColor(p.avatar),display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.62rem",fontWeight:800,flexShrink:0}}>{p.avatar}</div>
-                      <div>
-                        <div style={{fontSize:"0.77rem",fontWeight:700,color:"#0f172a"}}>{p.name}</div>
-                        <div style={{fontSize:"0.61rem",color:"#94a3b8"}}>{p.id} · {p.age}y · {p.gender} · 🩸{p.bloodGroup}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{padding:"11px 14px",fontSize:"0.73rem",color:"#334155",maxWidth:160}}><div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.diagnosis}</div></td>
-                  <td style={{padding:"11px 14px"}}>
-                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                      <span style={{fontSize:"0.6rem",fontWeight:700,padding:"2px 6px",borderRadius:6,background:"#fff1f2",color:"#be123c",fontFamily:"'JetBrains Mono',monospace"}}>BP {p.vitals.bp}</span>
-                      <span style={{fontSize:"0.6rem",fontWeight:700,padding:"2px 6px",borderRadius:6,background:"#f0f9ff",color:"#0369a1",fontFamily:"'JetBrains Mono',monospace"}}>HR {p.vitals.hr}</span>
-                    </div>
-                  </td>
-                  <td style={{padding:"11px 14px"}}><RiskBadge risk={p.risk}/></td>
-                  <td style={{padding:"11px 14px"}}><StatusPill status={p.status}/></td>
-                  <td style={{padding:"11px 14px",fontSize:"0.72rem",color:"#64748b"}}>{fmtDate(p.lastVisit)}</td>
-                  <td style={{padding:"11px 14px"}} onClick={e=>e.stopPropagation()}>
-                    <div style={{display:"flex",gap:5}}>
-                      <div title="View Profile" onClick={()=>onViewPatient(p)} style={{width:28,height:28,borderRadius:7,border:"1.5px solid #e2e8f0",background:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:"0.75rem",transition:"background .12s"}}
-                        onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#f8fafc"}>👁</div>
-                      <div title="Add Note" onClick={()=>onAddNote(p)} style={{width:28,height:28,borderRadius:7,border:"1.5px solid #e2e8f0",background:"#f8fafc",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:"0.75rem",transition:"background .12s"}}
-                        onMouseEnter={e=>e.currentTarget.style.background="#f1f5f9"} onMouseLeave={e=>e.currentTarget.style.background="#f8fafc"}>📝</div>
-                    </div>
-                  </td>
-                </tr>
-              ))
+            {loading ? Array(4).fill(0).map((_, i) => <tr key={i}><td colSpan={7} style={{ padding: "14px" }}><Skel h={36} r={6} /></td></tr>)
+              : filtered.length === 0 ? <tr><td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "#94a3b8", fontSize: "0.8rem" }}>No patients found</td></tr>
+                : filtered.map(p => {
+                  const pid = p.patientId || p.id || p._id;
+                  return (
+                    <tr key={pid} style={{ cursor: "pointer", transition: "background .12s" }}
+                      onMouseEnter={e => { for (let td of e.currentTarget.cells) td.style.background = "#f8fafc"; }}
+                      onMouseLeave={e => { for (let td of e.currentTarget.cells) td.style.background = ""; }}
+                      onClick={() => onViewPatient(p)}>
+                      <td style={{ padding: "11px 14px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 9, background: avatarColor(p.avatar), display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "0.62rem", fontWeight: 800, flexShrink: 0 }}>{p.avatar}</div>
+                          <div>
+                            <div style={{ fontSize: "0.77rem", fontWeight: 700, color: "#0f172a" }}>{p.name}</div>
+                            <div style={{ fontSize: "0.61rem", color: "#94a3b8" }}>{pid} · {p.age}y · {p.gender} · 🩸{p.bloodGroup}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "11px 14px", fontSize: "0.73rem", color: "#334155", maxWidth: 160 }}><div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.diagnosis}</div></td>
+                      <td style={{ padding: "11px 14px" }}>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "0.6rem", fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#fff1f2", color: "#be123c", fontFamily: "'JetBrains Mono',monospace" }}>BP {p.vitals?.bp || "—"}</span>
+                          <span style={{ fontSize: "0.6rem", fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#f0f9ff", color: "#0369a1", fontFamily: "'JetBrains Mono',monospace" }}>HR {p.vitals?.hr || "—"}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: "11px 14px" }}><RiskBadge risk={p.risk} /></td>
+                      <td style={{ padding: "11px 14px" }}><StatusPill status={p.status} /></td>
+                      <td style={{ padding: "11px 14px", fontSize: "0.72rem", color: "#64748b" }}>{fmtDate(p.lastVisit)}</td>
+                      <td style={{ padding: "11px 14px" }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: "flex", gap: 5 }}>
+                          <div title="View Profile" onClick={() => onViewPatient(p)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "0.75rem", transition: "background .12s" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}>👁</div>
+                          <div title="Add Note" onClick={() => onAddNote(p)} style={{ width: 28, height: 28, borderRadius: 7, border: "1.5px solid #e2e8f0", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "0.75rem", transition: "background .12s" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}>📝</div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
             }
           </tbody>
         </table>
@@ -614,16 +688,16 @@ function AppointmentsPage({ appointments, loading }) {
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         {loading ? Array(4).fill(0).map((_,i)=><div key={i} style={{background:"#fff",borderRadius:12,padding:"14px"}}><Skel h={70}/></div>)
           : filtered.length===0 ? <div style={{textAlign:"center",padding:"3rem",color:"#94a3b8"}}>No appointments</div>
-          : filtered.map(a=>{
+          : filtered.map((a, i)=>{
             const as=APT_STATUS_S[a.status]||APT_STATUS_S.Completed;
             return (
-              <div key={a.id} style={{background:"#fff",border:`1px solid ${a.status==="Today"?"#bfdbfe":"#e2e8f0"}`,borderRadius:14,padding:"14px 16px",boxShadow:a.status==="Today"?"0 4px 14px rgba(37,99,235,.07)":"none"}}>
+              <div key={a.id || a._id || i} style={{background:"#fff",border:`1px solid ${a.status==="Today"?"#bfdbfe":"#e2e8f0"}`,borderRadius:14,padding:"14px 16px",boxShadow:a.status==="Today"?"0 4px 14px rgba(37,99,235,.07)":"none"}}>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:10}}>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
                     <div style={{width:42,height:42,borderRadius:12,background:avatarColor(a.avatar),display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"0.82rem",fontWeight:800,flexShrink:0}}>{a.avatar}</div>
                     <div>
                       <div style={{fontSize:"0.84rem",fontWeight:800,color:"#0f172a"}}>{a.patientName}</div>
-                      <div style={{fontSize:"0.65rem",color:"#94a3b8"}}>{a.patientId}</div>
+                      <div style={{fontSize:"0.65rem",color:"#94a3b8"}}>{a.patientId || a.id || a._id}</div>
                     </div>
                   </div>
                   <span style={{fontSize:"0.63rem",fontWeight:700,padding:"3px 10px",borderRadius:99,background:as.bg,color:as.color,border:`1px solid ${as.border}`,flexShrink:0}}>{a.status}</span>
@@ -662,17 +736,23 @@ function RecordsPage({ records, loading }) {
           <span style={{color:"#94a3b8"}}>🔍</span>
           <input placeholder="Search records or patients…" value={search} onChange={e=>setSearch(e.target.value)} style={{border:"none",background:"transparent",fontSize:"0.78rem",color:"#0f172a",fontFamily:"'Sora',sans-serif",outline:"none",width:"100%"}}/>
         </div>
-        <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}>
           {types.map(t=>(
             <button key={t} onClick={()=>setFilter(t)} style={{padding:"6px 12px",borderRadius:99,border:`1.5px solid ${filter===t?"#0f172a":"#e2e8f0"}`,background:filter===t?"#0f172a":"#fff",color:filter===t?"#fff":"#64748b",fontSize:"0.7rem",fontWeight:600,cursor:"pointer",fontFamily:"'Sora',sans-serif",transition:"all .15s"}}>{t}</button>
           ))}
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-compare'))}
+            style={{padding:"6px 14px",borderRadius:99,border:"none",background:"#6366f1",color:"#fff",fontSize:"0.7rem",fontWeight:700,cursor:"pointer",marginLeft:10,display:"flex",alignItems:"center",gap:5}}
+          >
+            🔍 Compare
+          </button>
         </div>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         {loading ? Array(4).fill(0).map((_,i)=><div key={i} style={{background:"#fff",borderRadius:12,padding:"14px"}}><Skel h={60}/></div>)
           : filtered.length===0 ? <div style={{textAlign:"center",padding:"3rem",color:"#94a3b8"}}>No records found</div>
           : filtered.map(r=>(
-            <div key={r.id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:14,padding:"14px 16px",display:"flex",gap:14,alignItems:"flex-start",borderLeft:`4px solid ${r.color}`,transition:"box-shadow .15s",cursor:"default"}}
+            <div key={r.id || r._id} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:14,padding:"14px 16px",display:"flex",gap:14,alignItems:"flex-start",borderLeft:`4px solid ${r.color}`,transition:"box-shadow .15s",cursor:"default"}}
               onMouseEnter={e=>e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.07)"}
               onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
               <div style={{width:42,height:42,borderRadius:11,background:r.color+"15",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1.2rem",flexShrink:0}}>{r.icon}</div>
@@ -708,8 +788,8 @@ function NotesPage({ notes, loading, onAdd, onDelete }) {
         <div style={{marginBottom:"1.25rem"}}>
           <div style={{fontSize:"0.65rem",fontWeight:800,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.09em",marginBottom:10}}>📌 Pinned</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:10}}>
-            {(notes||[]).filter(n=>n.pinned).map(n=>(
-              <div key={n.id} style={{background:"#fffbeb",borderRadius:13,padding:"13px 14px",border:"1px solid #fde68a",borderLeft:`3px solid ${n.color}`,position:"relative"}}>
+            {(notes||[]).filter(n=>n.pinned).map((n, i)=>(
+              <div key={n.id || n._id || i} style={{background:"#fffbeb",borderRadius:13,padding:"13px 14px",border:"1px solid #fde68a",borderLeft:`3px solid ${n.color}`,position:"relative"}}>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
                   <div style={{fontSize:"0.76rem",fontWeight:800,color:"#0f172a"}}>{n.patientName}</div>
                   <div style={{display:"flex",gap:5}}>
@@ -856,22 +936,40 @@ function ProfilePage({ doctor, loading }) {
 //  MAIN LAYOUT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DoctorDashboard() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   const [page,setPage]          = useState("overview");
   const [notifOpen,setNotifOpen]= useState(false);
   const [sideOpen,setSideOpen]  = useState(false);
   const [drawer,setDrawer]      = useState(null);
   const [noteModal,setNoteModal]= useState(null); // null | { patient } | { editNote }
+  const [compareOpen,setCompareOpen] = useState(false);
   const notifRef = useRef(null);
 
-  const {data:doctor,    loading:dl} = useDummyFetch("profile",      DUMMY_DOCTOR,       300);
+  useEffect(() => {
+    const handleOpenCompare = () => setCompareOpen(true);
+    window.addEventListener('open-compare', handleOpenCompare);
+    return () => window.removeEventListener('open-compare', handleOpenCompare);
+  }, []);
+
+  const {data:dummyDoctor,    loading:dl} = useDummyFetch("profile",      DUMMY_DOCTOR,       300);
+  const doctor = dummyDoctor ? { ...dummyDoctor, name: user?.name ? `Dr. ${user.name}` : dummyDoctor.name, email: user?.email || dummyDoctor.email } : null;
   const {data:patients,  loading:pl} = useDummyFetch("patients",     DUMMY_PATIENTS,     420);
   const {data:appts,     loading:al} = useDummyFetch("appointments", DUMMY_APPOINTMENTS, 460);
   const {data:records,   loading:rl} = useDummyFetch("records",      DUMMY_RECORDS,      500);
+  const {data:apiNotes,   loading:notesLoading} = useDummyFetch("notes",        DUMMY_NOTES,        440);
   const [notes,setNotes]             = useState(null);
-  const [notesLoading,setNL]         = useState(true);
+  
+  useEffect(() => { if(apiNotes) setNotes(apiNotes); }, [apiNotes]);
+
   const {data:messages,  loading:ml} = useDummyFetch("messages",     DUMMY_MESSAGES,     400);
 
-  useEffect(()=>{ setTimeout(()=>{setNotes(DUMMY_NOTES);setNL(false);},440); },[]);
 
   useEffect(()=>{
     const h=e=>{if(notifRef.current&&!notifRef.current.contains(e.target))setNotifOpen(false);};
@@ -983,13 +1081,20 @@ export default function DoctorDashboard() {
 
           <div className="dd-nav">
             <div className="dd-nav-grp-label">Workspace</div>
-            {NAV.map(n=>(
+            {(NAV||[]).map(n=>(
               <div key={n.id} className={`dd-nav-item${page===n.id?" on":""}`} onClick={()=>{setPage(n.id);setSideOpen(false);}}>
                 <span style={{fontSize:"1rem",width:20,textAlign:"center"}}>{n.icon}</span>
                 <span>{n.label}</span>
                 {n.badge && <span className={`dd-nav-badge${n.id==="appointments"?" blue":""}`}>{n.badge}</span>}
               </div>
             ))}
+          </div>
+
+          <div style={{padding:"0 0.75rem 0.75rem"}}>
+              <div onClick={handleLogout} className="dd-nav-item" style={{color: "#ef4444", marginBottom: 0}}>
+                <span style={{fontSize:"1.1rem",width:20,textAlign:"center"}}>🚪</span>
+                <span>Logout</span>
+              </div>
           </div>
 
           {!dl && doctor && (
@@ -1012,7 +1117,9 @@ export default function DoctorDashboard() {
           <header className="dd-topbar">
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <div style={{display:"none"}} className="dd-hamburger" onClick={()=>setSideOpen(s=>!s)}>☰</div>
-              <div style={{fontSize:"1.05rem",fontWeight:800,color:"#0f172a"}}>{NAV.find(n=>n.id===page)?.icon} {NAV.find(n=>n.id===page)?.label}</div>
+              <div style={{fontSize:"1.05rem",fontWeight:800,color:"#0f172a"}}>
+                {NAV?.find(n=>n.id===page)?.icon || "🏥"} {NAV?.find(n=>n.id===page)?.label || "Dashboard"}
+              </div>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <div style={{display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:99,fontSize:"0.6rem",fontWeight:700,background:API.USE_REAL_API?"#f0fdf4":"#fffbeb",border:`1px solid ${API.USE_REAL_API?"#bbf7d0":"#fde68a"}`,color:API.USE_REAL_API?"#15803d":"#92400e"}}>
@@ -1078,6 +1185,13 @@ export default function DoctorDashboard() {
           onClose={()=>setNoteModal(null)}
           onSave={handleAddNote}
           preselect={noteModal.patient?.id}
+        />
+      )}
+
+      {compareOpen && (
+        <CompareRecords 
+          records={records || []} 
+          onClose={() => setCompareOpen(false)} 
         />
       )}
     </>
